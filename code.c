@@ -118,6 +118,11 @@ void mul()
 void div()
 {
     operand c1=pop();
+
+    if(c1.val==0){
+        execerror("div zero error","");
+    }
+
     operand c2=pop();
 
     c2.val/=c1.val;
