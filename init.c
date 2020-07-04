@@ -23,7 +23,7 @@ static struct{
     { 0, 0 },
 };
 
-init()
+void init()
 {
     for(int i=0;consts[i].name;i++){
         install(consts[i].name,VAR,consts[i].val);

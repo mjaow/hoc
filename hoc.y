@@ -1,13 +1,30 @@
 %{
 #include "hoc.h"
+#define code2(c1,c2) code(c1); code(c2)
+#define code3(c1,c2,c3) code(c1); code(c2); code(c3)
+
+inst_with_name add_with_name = {"add",0,add};
+inst_with_name sub_with_name = {"sub",0,sub};
+inst_with_name mul_with_name = {"mul",0,mul};
+inst_with_name div_with_name = {"div",0,div};
+inst_with_name neg_with_name = {"neg",0,neg};
+inst_with_name pos_with_name = {"pos",0,pos};
+inst_with_name power_with_name = {"power",0,power};
+inst_with_name asg_with_name = {"asg",0,asg};
+inst_with_name eval_with_name = {"eval",0,eval};
+inst_with_name constpush_with_name = {"constpush",0,constpush};
+inst_with_name varpush_with_name = {"varpush",0,varpush};
+inst_with_name builtin_with_name = {"builtin",0,builtin};
+inst_with_name print_with_name = {"print",0,print};
+inst_with_name pop_with_name = {"pop",0,pop};
+inst_with_name stop_with_name = {"stop",0,stop};
+
 %}
 %union {
     struct symbol *sym;
-    double val;
+    struct inst *inst;
 }
-%token <val> NUMBER
-%token <sym> VAR BUILTIN UNDEF
-%type <val> expr assign
+%token <sym> NUMBER VAR BUILTIN UNDEF
 %right '='
 %left '+' '-'
 %left '*' '/'
@@ -17,33 +34,25 @@
 %%
 list:
         | list '\n'
-        | list assign '\n'
-        | list expr '\n' { printf("\t%.8g\n", $2); }
+        | list assign '\n' { code2(pop_with_name,stop_with_name);return 1; }
+        | list expr '\n' { code2(print_with_name,stop_with_name);return 1; }
         | list error '\n' { yyerrok;}
         ;
 
-assign:   VAR '=' expr { $1->type=VAR;$$ = $1->u.val = $3; }
+assign:   VAR '=' expr { code3(varpush_with_name,wrap((inst)$1,$1->name,0),asg_with_name); }
 
-expr:     NUMBER  { $$ = $1; }
-        | VAR   { 
-            if($1->type==UNDEF){
-                execerror("undefine var",$1->name);
-            }
-            $$ = $1->u.val; }
+expr:     NUMBER  { code2(constpush_with_name,wrap((inst)$1,0,$1->u.val)); }
+        | VAR   { code3(varpush_with_name,wrap((inst)$1,$1->name,0),eval_with_name); }
         | assign
-        | BUILTIN '(' expr ')' { $$ = (*($1->u.ptr))($3); }
-        | '-' expr %prec UNARYMINUS { $$ = -$2; }
-        | '+' expr %prec UNARYPLUS { $$ = $2; }
-        | expr '+' expr { $$ = $1 + $3; }
-        | expr '-' expr { $$ = $1 - $3; }
-        | expr '*' expr { $$ = $1 * $3; }
-        | expr '/' expr { 
-            if($3 == 0){
-                execerror("div by zero","");
-            }
-            $$ = $1 / $3; }
-        | expr '^' expr { $$ = pow($1,$3); }
-        | '(' expr ')' { $$ = $2; }
+        | BUILTIN '(' expr ')' { code2(builtin_with_name,wrap((inst)$1,"func",0)); }
+        | '-' expr %prec UNARYMINUS { code(neg_with_name); }
+        | '+' expr %prec UNARYPLUS { code(pos_with_name); }
+        | expr '+' expr { code(add_with_name); }
+        | expr '-' expr { code(sub_with_name); }
+        | expr '*' expr { code(mul_with_name); }
+        | expr '/' expr { code(div_with_name); }
+        | expr '^' expr { code(power_with_name); }
+        | '(' expr ')'
         ;
 %%
 
@@ -62,7 +71,10 @@ main(int argc,char **argv)
     progname = argv[0];
     setjmp(begin);
     signal(SIGFPE,fpecatch);
-    yyparse();
+
+    for(initcode();yyparse();initcode()){
+        execute(prog);
+    }
 }
 
 yylex(){
@@ -72,7 +84,11 @@ yylex(){
 
     if(c=='.'||isdigit(c)){
         ungetc(c,stdin);
-        scanf("%lf",&yylval.val);
+        double d=0;
+        scanf("%lf",&d);
+        
+        yylval.sym=install("",NUMBER,d);
+
         return NUMBER;
     }
     

@@ -2,7 +2,7 @@ APP = hoc
 
 YFLAGS = -d
 
-OBJS = hoc.o init.o symbol.o
+OBJS = hoc.o code.o init.o symbol.o
 
 hoc: ${OBJS}
 	gcc ${OBJS} -lm -o ${APP}
