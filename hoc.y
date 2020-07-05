@@ -9,6 +9,15 @@
 #define neg_with_name wrap(neg,"neg",0)
 #define pos_with_name wrap(pos,"pos",0)
 #define power_with_name wrap(power,"power",0)
+#define or_with_name wrap(or_,"or",0)
+#define and_with_name wrap(and_,"and",0)
+#define not_with_name wrap(not_,"not",0)
+#define gt_with_name wrap(gt,"gt",0)
+#define lt_with_name wrap(lt,"lt",0)
+#define le_with_name wrap(le,"le",0)
+#define ge_with_name wrap(ge,"ge",0)
+#define eq_with_name wrap(eq,"eq",0)
+#define ne_with_name wrap(ne,"ne",0)
 #define asg_with_name wrap(asg,"asg",0)
 #define eval_with_name wrap(eval,"eval",0)
 #define constpush_with_name wrap(constpush,"constpush",0)
@@ -27,8 +36,9 @@
 %right '='
 %left '+' '-'
 %left '*' '/'
-%left UNARYMINUS
-%left UNARYPLUS
+%left OR AND
+%left GT LT LE GE EQ NE
+%left UNARYMINUS UNARYPLUS NOT
 %right '^'
 %%
 list:
@@ -51,6 +61,15 @@ expr:     NUMBER  { code2(constpush_with_name,wrap((inst)$1,0,$1->u.val)); }
         | expr '*' expr { code(mul_with_name); }
         | expr '/' expr { code(div_with_name); }
         | expr '^' expr { code(power_with_name); }
+        | expr OR expr { code(or_with_name); }
+        | expr AND expr { code(and_with_name); }
+        | expr GT expr { code(gt_with_name); }
+        | expr LT expr { code(lt_with_name); }
+        | expr LE expr { code(le_with_name); }
+        | expr GE expr { code(ge_with_name); }
+        | expr EQ expr { code(eq_with_name); }
+        | expr NE expr { code(ne_with_name); }
+        | NOT expr { code(not_with_name); }
         | '(' expr ')'
         ;
 %%
@@ -74,6 +93,17 @@ main(int argc,char **argv)
     for(initcode();yyparse();initcode()){
         execute(prog);
     }
+}
+
+int follow(int expect,int ifch,int elch)
+{
+    int c=getchar();
+
+    if(c==expect){
+        return ifch;
+    }
+    ungetc(c,stdin);
+    return elch;
 }
 
 yylex(){
@@ -110,11 +140,25 @@ yylex(){
         return s->type==UNDEF?VAR:s->type;
     }
 
-    if(c=='\n'){
+    switch(c){
+    case '>':
+        return follow('=',GE,GT);
+    case '=':
+        return follow('=',GE,c);
+    case '<':
+        return follow('=',LE,LT);
+    case '&':
+        return follow('&',AND,c);
+    case '|':
+        return follow('|',OR,c);
+    case '!':
+        return follow('=',NE,NOT);
+    case '\n':
         lineno++;
+        return c;
+    default:
+        return c;
     }
-
-    return c;
 }
 
 execerror(char *s,char *f)

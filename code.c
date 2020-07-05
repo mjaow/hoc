@@ -197,3 +197,84 @@ void builtin()
 
     push(c);
 }
+
+void or_()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val || c1.val;
+    push(c2);
+}
+
+void and_()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val && c1.val;
+    push(c2);
+}
+
+void gt()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val > c1.val;
+    push(c2);
+
+}
+
+void lt()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val < c1.val;
+    push(c2);
+}
+
+void le()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val <= c1.val;
+    push(c2);
+}
+
+void ge()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val >= c1.val;
+    push(c2);
+}
+
+void eq()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val == c1.val;
+    push(c2);
+}
+
+void not_()
+{
+    operand c=pop();
+    c.val=!c.val;
+
+    push(c);
+}
+
+void ne()
+{
+    operand c1=pop();
+    operand c2=pop();
+
+    c2.val = c2.val != c1.val;
+    push(c2);
+}

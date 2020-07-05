@@ -33,7 +33,7 @@ struct symbol *install(char *name,int type,double val);
 operand pop();
 
 void init();
-void add(),sub(),mul(),div(),neg(),pos(),power(),asg(),eval(),constpush(),varpush(),builtin(),print();
+void add(),sub(),mul(),div(),neg(),pos(),power(),asg(),eval(),constpush(),varpush(),builtin(),print(),or_(),and_(),not_(),gt(),lt(),le(),ge(),eq(),ne();
 
 extern inst prog[];
 
