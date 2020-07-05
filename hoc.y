@@ -2,22 +2,21 @@
 #include "hoc.h"
 #define code2(c1,c2) code(c1); code(c2)
 #define code3(c1,c2,c3) code(c1); code(c2); code(c3)
-
-inst_with_name add_with_name = {"add",0,add};
-inst_with_name sub_with_name = {"sub",0,sub};
-inst_with_name mul_with_name = {"mul",0,mul};
-inst_with_name div_with_name = {"div",0,div};
-inst_with_name neg_with_name = {"neg",0,neg};
-inst_with_name pos_with_name = {"pos",0,pos};
-inst_with_name power_with_name = {"power",0,power};
-inst_with_name asg_with_name = {"asg",0,asg};
-inst_with_name eval_with_name = {"eval",0,eval};
-inst_with_name constpush_with_name = {"constpush",0,constpush};
-inst_with_name varpush_with_name = {"varpush",0,varpush};
-inst_with_name builtin_with_name = {"builtin",0,builtin};
-inst_with_name print_with_name = {"print",0,print};
-inst_with_name pop_with_name = {"pop",0,pop};
-inst_with_name stop_with_name = {"stop",0,stop};
+#define add_with_name wrap(add,"add",0)
+#define sub_with_name wrap(sub,"sub",0)
+#define mul_with_name wrap(mul,"mul",0)
+#define div_with_name wrap(div,"div",0)
+#define neg_with_name wrap(neg,"neg",0)
+#define pos_with_name wrap(pos,"pos",0)
+#define power_with_name wrap(power,"power",0)
+#define asg_with_name wrap(asg,"asg",0)
+#define eval_with_name wrap(eval,"eval",0)
+#define constpush_with_name wrap(constpush,"constpush",0)
+#define varpush_with_name wrap(varpush,"varpush",0)
+#define builtin_with_name wrap(builtin,"builtin",0)
+#define print_with_name wrap(print,"print",0)
+#define pop_with_name wrap(pop,"pop",0)
+#define stop_with_name wrap(stop,"stop",0)
 
 %}
 %union {
